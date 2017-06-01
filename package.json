@@ -1,0 +1,11 @@
+{
+  "name": "node-simd",
+  "version": "0.0.1",
+  "description": "SIMD javascript API for node.js x86 platform using SSE2",
+  "gypfile": true,
+  "private": true,
+  "dependencies": {
+    "bindings": "~1.2.1",
+    "nan": "^2.0.0"
+  }
+}
