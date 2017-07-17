@@ -31,6 +31,9 @@ void Float32x4::Init(v8::Local<v8::Object> exports) {
   exports->Set(Nan::New("Float32x4").ToLocalChecked(), cst);
   cst->Set(Nan::New("add").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Add)->GetFunction());
   cst->Set(Nan::New("abs").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Abs)->GetFunction());
+  cst->Set(Nan::New("check").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Check)->GetFunction());
+  cst->Set(Nan::New("div").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Div)->GetFunction());
+  cst->Set(Nan::New("extractLane").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(ExtractLane)->GetFunction());
 }
 
 void Float32x4::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
@@ -61,8 +64,16 @@ void Float32x4::Add(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 		Nan::ThrowTypeError("Wrong number of arguments");
 		return;
 	}
-    Float32x4* a = ObjectWrap::Unwrap<Float32x4>(info[0]->ToObject());
-    Float32x4* b = ObjectWrap::Unwrap<Float32x4>(info[1]->ToObject());
+    Float32x4* a = cast(info[0]->ToObject());
+    if(!a) {
+		Nan::ThrowTypeError("1st argument isn't a Float32x4");
+		return;
+	}
+    Float32x4* b = cast(info[1]->ToObject());
+     if(!b) {
+		Nan::ThrowTypeError("2sd argument isn't a Float32x4");
+		return;
+	}
     const int argc = 0;
     v8::Local<v8::Value> argv[argc] = { };
     v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
@@ -72,20 +83,102 @@ void Float32x4::Add(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	info.GetReturnValue().Set(res);
 }
 
+
+void Float32x4::Div(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+	if (info.Length() < 2) {
+		Nan::ThrowTypeError("Wrong number of arguments");
+		return;
+	}
+    Float32x4* a = cast(info[0]->ToObject());
+    if(!a) {
+		Nan::ThrowTypeError("1st argument isn't a Float32x4");
+		return;
+	}
+    Float32x4* b = cast(info[1]->ToObject());
+     if(!b) {
+		Nan::ThrowTypeError("2sd argument isn't a Float32x4");
+		return;
+	}
+    const int argc = 0;
+    v8::Local<v8::Value> argv[argc] = { };
+    v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+    v8::Local<v8::Object> res = cons->NewInstance(argc, argv);
+	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
+	r->vec = _mm_div_ps(a->vec,b->vec);
+	info.GetReturnValue().Set(res);
+}
+
 void Float32x4::Abs(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	if (info.Length() < 1) {
 		Nan::ThrowTypeError("Wrong number of arguments");
 		return;
 	}
-    Float32x4* a = ObjectWrap::Unwrap<Float32x4>(info[0]->ToObject());
-    const int argc = 0;
-    v8::Local<v8::Value> argv[argc] = { };
-    v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-    v8::Local<v8::Object> res = cons->NewInstance(argc, argv);
+	Float32x4* a = cast(info[0]->ToObject());
+	if(!a) {
+		Nan::ThrowTypeError("1st argument isn't a Float32x4");
+		return;
+	}
+
+	const int argc = 0;
+	v8::Local<v8::Value> argv[argc] = { };
+	v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+	v8::Local<v8::Object> res = cons->NewInstance(argc, argv);
 	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
 	r->vec = _mm_max_ps(_mm_sub_ps(_mm_setzero_ps(), a->vec), a->vec);
 	info.GetReturnValue().Set(res);
+}
+
+void Float32x4::Check(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+	if (info.Length() < 1) {
+		Nan::ThrowTypeError("Wrong number of arguments");
+		return;
+	}
+    Float32x4* a = cast(info[0]->ToObject());
+    if(!a) {
+    	Nan::ThrowTypeError("1st argument isn't a Float32x4");
+        return;
+    }
+
+	info.GetReturnValue().Set(info[0]->ToObject());
+}
+
+void Float32x4::ExtractLane(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+	if (info.Length() < 2) {
+		Nan::ThrowTypeError("Wrong number of arguments");
+		return;
+	}
+    Float32x4* a = cast(info[0]->ToObject());
+    if(!a) {
+		Nan::ThrowTypeError("1st argument isn't a Float32x4");
+		return;
+	}
+	if(!info[1]->IsUint32()) {
+		Nan::ThrowTypeError("2sd argument isn't a uint");
+        return;
+	}
+    uint32_t idx = info[1]->Uint32Value();
+     if(idx<0 || idx>=4) {
+		Nan::ThrowRangeError("2sd argument isn't in [0 ... 3]");
+		return;
+	}
+    float data[4];
+    _mm_store_ps(data, a->vec );
+	info.GetReturnValue().Set(data[idx]);
+}
+
+
+Float32x4* Float32x4::cast(v8::Local<v8::Object> object) {
+  if(!object.IsEmpty() && object->InternalFieldCount() > 0) {
+  	Float32x4* ptr = static_cast<Float32x4*>(Nan::GetInternalFieldPointer(object, 0));
+	if(ptr && ptr->getType()==FLOAT32x4) {
+		return ptr;
+	}
+  }
+  return NULL;
 }
 
 NAN_INDEX_GETTER(Float32x4::PropertyGetter) {
