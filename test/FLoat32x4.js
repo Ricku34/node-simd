@@ -14,6 +14,23 @@ console.assert(SIMD.Float32x4.extractLane(r,1)==1);
 console.assert(SIMD.Float32x4.extractLane(r,2)==6);
 console.assert(SIMD.Float32x4.extractLane(r,3)==7);
 
+a = SIMD.Float32x4(2, 2, 2, 2);
+b = SIMD.Float32x4(4, 4, 4, 4);
+r = SIMD.Float32x4.div(a, b);
+for(var i=0;i<4;i++)
+    console.assert(SIMD.Float32x4.extractLane(r,i)==0.5);
+
+SIMD.Float32x4.check(a);
+["" ,5 , false, [1, 2, 5, 5],].forEach(function (type) {
+    var typeError = false;
+    try
+    {
+        SIMD.Float32x4.check(type);
+    } catch (e) {
+        typeError = e instanceof TypeError;
+    }
+    console.assert(typeError);
+});
 
 
 

@@ -30,6 +30,7 @@ class Float32x4 : public Nan::ObjectWrap {
 		static void Check(const Nan::FunctionCallbackInfo<v8::Value>& info);
 		static void Div(const Nan::FunctionCallbackInfo<v8::Value>& info);
 		static void ExtractLane(const Nan::FunctionCallbackInfo<v8::Value>& info);
+		static void Load(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
 		static Nan::Persistent<v8::Function> constructor;
 		__m128 vec;

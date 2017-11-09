@@ -34,6 +34,7 @@ void Float32x4::Init(v8::Local<v8::Object> exports) {
   cst->Set(Nan::New("check").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Check)->GetFunction());
   cst->Set(Nan::New("div").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Div)->GetFunction());
   cst->Set(Nan::New("extractLane").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(ExtractLane)->GetFunction());
+  cst->Set(Nan::New("load").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Load)->GetFunction());
 }
 
 void Float32x4::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
@@ -146,6 +147,32 @@ void Float32x4::Check(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 void Float32x4::ExtractLane(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+	if (info.Length() < 2) {
+		Nan::ThrowTypeError("Wrong number of arguments");
+		return;
+	}
+    Float32x4* a = cast(info[0]->ToObject());
+    if(!a) {
+		Nan::ThrowTypeError("1st argument isn't a Float32x4");
+		return;
+	}
+	if(!info[1]->IsUint32()) {
+		Nan::ThrowTypeError("2sd argument isn't a uint");
+        return;
+	}
+    uint32_t idx = info[1]->Uint32Value();
+     if(idx<0 || idx>=4) {
+		Nan::ThrowRangeError("2sd argument isn't in [0 ... 3]");
+		return;
+	}
+    float data[4];
+    _mm_store_ps(data, a->vec );
+	info.GetReturnValue().Set(data[idx]);
+}
+
+
+void Float32x4::Load(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 	if (info.Length() < 2) {
 		Nan::ThrowTypeError("Wrong number of arguments");
