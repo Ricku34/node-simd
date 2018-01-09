@@ -1,4 +1,3 @@
-#include <nan.h>
 #include "f32x4.h"
 
 
