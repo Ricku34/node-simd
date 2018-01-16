@@ -1,8 +1,10 @@
 #ifndef FLOAT32x4_H
 #define FLOAT32x4_H
 
+#include <math.h>
 #include <nan.h>
-#include <mmintrin.h>
+#include <pmmintrin.h>
+#include <immintrin.h>
 
 class Float32x4 : public Nan::ObjectWrap {
 	public:
