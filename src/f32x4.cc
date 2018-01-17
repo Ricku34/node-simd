@@ -50,7 +50,7 @@ void Float32x4::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     info.GetReturnValue().Set(info.This());
   } else {
     // Invoked as plain function `Float32x4(...)`, turn into construct call.
-    v8::Local<v8::Value> argv[info.Length()];
+    v8::Local<v8::Value>* argv= new v8::Local<v8::Value>[info.Length()];
     for(int i=0;i<info.Length();i++) {
     	argv[i]=info[i];
     }
@@ -75,10 +75,9 @@ void Float32x4::Add(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 		Nan::ThrowTypeError("2sd argument isn't a Float32x4");
 		return;
 	}
-    const int argc = 0;
-    v8::Local<v8::Value> argv[argc] = { };
+    
     v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-    v8::Local<v8::Object> res = cons->NewInstance(argc, argv);
+    v8::Local<v8::Object> res = cons->NewInstance(0, NULL);
 	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
 	r->vec = _mm_add_ps(a->vec,b->vec);
 	info.GetReturnValue().Set(res);
@@ -101,10 +100,8 @@ void Float32x4::Div(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 		Nan::ThrowTypeError("2sd argument isn't a Float32x4");
 		return;
 	}
-    const int argc = 0;
-    v8::Local<v8::Value> argv[argc] = { };
-    v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-    v8::Local<v8::Object> res = cons->NewInstance(argc, argv);
+   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+    v8::Local<v8::Object> res = cons->NewInstance(0, NULL);
 	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
 	r->vec = _mm_div_ps(a->vec,b->vec);
 	info.GetReturnValue().Set(res);
@@ -122,10 +119,8 @@ void Float32x4::Abs(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 		return;
 	}
 
-	const int argc = 0;
-	v8::Local<v8::Value> argv[argc] = { };
 	v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-	v8::Local<v8::Object> res = cons->NewInstance(argc, argv);
+	v8::Local<v8::Object> res = cons->NewInstance(0, NULL);
 	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
 	r->vec = _mm_max_ps(_mm_sub_ps(_mm_setzero_ps(), a->vec), a->vec);
 	info.GetReturnValue().Set(res);
