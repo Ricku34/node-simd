@@ -30,14 +30,18 @@ void Float32x4::Init(v8::Local<v8::Object> exports) {
   constructor.Reset(cst);
   exports->Set(Nan::New("Float32x4").ToLocalChecked(), cst);
   cst->Set(Nan::New("add").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Add)->GetFunction());
+  cst->Set(Nan::New("sub").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Sub)->GetFunction());
   cst->Set(Nan::New("abs").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Abs)->GetFunction());
+  cst->Set(Nan::New("sqrt").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Sqrt)->GetFunction());
   cst->Set(Nan::New("check").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Check)->GetFunction());
   cst->Set(Nan::New("div").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Div)->GetFunction());
+  cst->Set(Nan::New("mul").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Mul)->GetFunction());
   cst->Set(Nan::New("extractLane").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(ExtractLane)->GetFunction());
   cst->Set(Nan::New("load").ToLocalChecked(),Nan::New<v8::FunctionTemplate>(Load)->GetFunction());
 }
 
 void Float32x4::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   if (info.IsConstructCall()) {
     // Invoked as constructor: `new Float32x4(...)`
 	double r0 = (info.Length() >= 1 && info[0]->IsNumber())? info[0]->NumberValue() : NAN;
@@ -55,12 +59,12 @@ void Float32x4::New(const Nan::FunctionCallbackInfo<v8::Value>& info) {
     	argv[i]=info[i];
     }
     v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-    info.GetReturnValue().Set(cons->NewInstance(info.Length(), argv));
+    info.GetReturnValue().Set(cons->NewInstance(context, info.Length(), argv).ToLocalChecked());
   }
 }
 
 void Float32x4::Add(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-
+	v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 	if (info.Length() < 2) {
 		Nan::ThrowTypeError("Wrong number of arguments");
 		return;
@@ -77,15 +81,38 @@ void Float32x4::Add(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	}
     
     v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-    v8::Local<v8::Object> res = cons->NewInstance(0, NULL);
+    v8::Local<v8::Object> res = cons->NewInstance(context,0, NULL).ToLocalChecked();
 	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
 	r->vec = _mm_add_ps(a->vec,b->vec);
 	info.GetReturnValue().Set(res);
 }
 
+void Float32x4::Sub(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
+	if (info.Length() < 2) {
+		Nan::ThrowTypeError("Wrong number of arguments");
+		return;
+	}
+    Float32x4* a = cast(info[0]->ToObject());
+    if(!a) {
+		Nan::ThrowTypeError("1st argument isn't a Float32x4");
+		return;
+	}
+    Float32x4* b = cast(info[1]->ToObject());
+     if(!b) {
+		Nan::ThrowTypeError("2sd argument isn't a Float32x4");
+		return;
+	}
+    
+    v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+    v8::Local<v8::Object> res = cons->NewInstance(context,0, NULL).ToLocalChecked();
+	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
+	r->vec = _mm_sub_ps(a->vec,b->vec);
+	info.GetReturnValue().Set(res);
+}
 
 void Float32x4::Div(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-
+	v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 	if (info.Length() < 2) {
 		Nan::ThrowTypeError("Wrong number of arguments");
 		return;
@@ -101,14 +128,37 @@ void Float32x4::Div(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 		return;
 	}
    v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-    v8::Local<v8::Object> res = cons->NewInstance(0, NULL);
+    v8::Local<v8::Object> res = cons->NewInstance(context, 0, NULL).ToLocalChecked();
 	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
 	r->vec = _mm_div_ps(a->vec,b->vec);
 	info.GetReturnValue().Set(res);
 }
 
-void Float32x4::Abs(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+void Float32x4::Mul(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
+	if (info.Length() < 2) {
+		Nan::ThrowTypeError("Wrong number of arguments");
+		return;
+	}
+    Float32x4* a = cast(info[0]->ToObject());
+    if(!a) {
+		Nan::ThrowTypeError("1st argument isn't a Float32x4");
+		return;
+	}
+    Float32x4* b = cast(info[1]->ToObject());
+     if(!b) {
+		Nan::ThrowTypeError("2sd argument isn't a Float32x4");
+		return;
+	}
+   v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+    v8::Local<v8::Object> res = cons->NewInstance(context, 0, NULL).ToLocalChecked();
+	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
+	r->vec = _mm_mul_ps(a->vec,b->vec);
+	info.GetReturnValue().Set(res);
+}
 
+void Float32x4::Abs(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
 	if (info.Length() < 1) {
 		Nan::ThrowTypeError("Wrong number of arguments");
 		return;
@@ -120,9 +170,28 @@ void Float32x4::Abs(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 	}
 
 	v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
-	v8::Local<v8::Object> res = cons->NewInstance(0, NULL);
+	v8::Local<v8::Object> res = cons->NewInstance(context, 0, NULL).ToLocalChecked();
 	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
 	r->vec = _mm_max_ps(_mm_sub_ps(_mm_setzero_ps(), a->vec), a->vec);
+	info.GetReturnValue().Set(res);
+}
+
+void Float32x4::Sqrt(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+	v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
+	if (info.Length() < 1) {
+		Nan::ThrowTypeError("Wrong number of arguments");
+		return;
+	}
+	Float32x4* a = cast(info[0]->ToObject());
+	if(!a) {
+		Nan::ThrowTypeError("1st argument isn't a Float32x4");
+		return;
+	}
+
+	v8::Local<v8::Function> cons = Nan::New<v8::Function>(constructor);
+	v8::Local<v8::Object> res = cons->NewInstance(context, 0, NULL).ToLocalChecked();
+	Float32x4* r = ObjectWrap::Unwrap<Float32x4>(res);
+	r->vec = _mm_sqrt_ps(a->vec);
 	info.GetReturnValue().Set(res);
 }
 

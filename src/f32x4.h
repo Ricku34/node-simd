@@ -28,9 +28,12 @@ class Float32x4 : public Nan::ObjectWrap {
 		static Float32x4 *cast(v8::Local<v8::Object> object);
 
 		static void Add(const Nan::FunctionCallbackInfo<v8::Value>& info);
+		static void Sub(const Nan::FunctionCallbackInfo<v8::Value>& info);
 		static void Abs(const Nan::FunctionCallbackInfo<v8::Value>& info);
+		static void Sqrt(const Nan::FunctionCallbackInfo<v8::Value>& info);
 		static void Check(const Nan::FunctionCallbackInfo<v8::Value>& info);
 		static void Div(const Nan::FunctionCallbackInfo<v8::Value>& info);
+		static void Mul(const Nan::FunctionCallbackInfo<v8::Value>& info);
 		static void ExtractLane(const Nan::FunctionCallbackInfo<v8::Value>& info);
 		static void Load(const Nan::FunctionCallbackInfo<v8::Value>& info);
 
